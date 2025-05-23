@@ -2,6 +2,7 @@ const express = require("express")
 const exphbs = require("express-handlebars")
 const conn = require("./db/conn")
 const User = require("./models/User")
+const Address = require("./models/Address")
 const { use } = require("react")
 
 const app = express()
@@ -52,6 +53,54 @@ app.post('/users/delete/:id', async (req, res) => {
     res.redirect('/')
 })
 
+app.get('/users/edit/:id', async (req, res) => {
+    const id = req.params.id
+    const user = await User.findOne({ raw: true, where: { id: id } })
+
+    res.render('useredit', { user: user })
+})
+
+app.post('/users/update', async (req, res) => {
+    const id = req.body.id
+    const name = req.body.name
+    const occupation = req.body.occupation
+    let newsletter = req.body.newsletter
+
+    if (newsletter === 'on') {
+        newsletter = true
+    } else {
+        newsletter = false
+    }
+    const user = {
+        id,
+        name,
+        occupation,
+        newsletter
+    }
+
+    await User.update(user, { where: { id: id } })
+
+    res.redirect('/')
+})
+
+app.post('/address/create', async (req, res) => {
+
+    const UserId = req.body.UserId
+    const street = req.body.street
+    const number = req.body.number
+    const city = req.body.city
+
+    const address = {
+        UserId,
+        street,
+        number,
+        city,
+    }
+    await Address.create(address)
+    res.redirect('/')
+
+})
+
 app.get('/', async (req, res) => {
 
     const users = await User.findAll({ raw: true })
@@ -61,6 +110,7 @@ app.get('/', async (req, res) => {
 
 conn
     .sync()
+    //.sync({ force: true })
     .then(() => {
         app.listen(3000)
     })

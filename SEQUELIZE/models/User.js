@@ -13,6 +13,6 @@ const User = db.define('User', {
     newsletter: {
         type: DataTypes.BOOLEAN,
     },
-})
+});
 
 module.exports = User
